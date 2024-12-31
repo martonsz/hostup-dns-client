@@ -1,0 +1,14 @@
+{
+    "python.testing": {
+        "envFile": "",
+        "unittestArgs": [
+            "-v",
+            "-s",
+            "./src",
+            "-p",
+            "*test.py"
+        ],
+        "pytestEnabled": false,
+        "unittestEnabled": true
+    }
+}
