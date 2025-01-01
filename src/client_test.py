@@ -1,5 +1,6 @@
 import unittest
 import json
+import requests
 from unittest.mock import patch, Mock
 from app_config import AppConfig
 from model.authentication import Authentication, TokenException
@@ -15,44 +16,46 @@ class TestClient(unittest.TestCase):
     def setUp(self):
         self.config = AppConfig(username="username", password="password")
 
-    @patch("requests.post")
-    def test_authenticate(self, mock_post):
+    @patch("requests.Session.send")
+    def test_authenticate(self, session_send_mock):
         mock_response = Mock()
-        mock_response.text = json.dumps({"token": self.jwt_expires_year_5000, "refresh": "ignore"})
+        mock_response.text = json.dumps(
+            {"token": self.jwt_expires_year_5000, "refresh": "ignore"}
+        )
         mock_response.status_code = 200
-        mock_response.headers = {"Content-Type": "application/json"}
-        mock_post.return_value = mock_response
+        session_send_mock.return_value = mock_response
 
         host_up_client = HostUpClient(self.config)
         authentication = host_up_client._authenticate()
         self.assertEqual(authentication.token, self.jwt_expires_year_5000)
         self.assertEqual(authentication.expiration, self.epoch_year_5000)
 
+    @patch("requests.Session.send")
+    def test_authenticate_missing_expiration(self, session_send_mock):
+        mock_response = Mock()
+        mock_response.text = json.dumps(
+            {"token": self.jwt_missing_exp, "refresh": "ignore"}
+        )
+        mock_response.status_code = 200
+        session_send_mock.return_value = mock_response
 
-    @patch("requests.post")
-    def test_rate_limit(self, mock_post):
+        host_up_client = HostUpClient(self.config)
+        with self.assertRaises(TokenException) as context:
+            host_up_client._authenticate()
+        self.assertIn("Could not find expiration in JWT", str(context.exception))
+
+    @patch("requests.Session.send")
+    def test_rate_limit(self, session_send_mock):
         mock_response = Mock()
         mock_response.text = json.dumps({"error": "To many requests"})
         mock_response.status_code = 429
-        mock_response.headers = {"Content-Type": "application/json"}
-        mock_post.return_value = mock_response
+        session_send_mock.return_value = mock_response
 
         host_up_client = HostUpClient(self.config)
         with self.assertRaises(ToManyRequestsException) as context:
             host_up_client._authenticate()
         self.assertIn("To many requests", str(context.exception))
 
-    @patch("requests.post")
-    def test_missing_expiration(self, mock_post):
-        mock_response = Mock()
-        mock_response.text = json.dumps({"token": self.jwt_missing_exp, "refresh": "ignore"})
-        mock_response.status_code = 200
-        mock_response.headers = {"Content-Type": "application/json"}
-        mock_post.return_value = mock_response
 
-        host_up_client = HostUpClient(self.config)
-        with self.assertRaises(TokenException) as context:
-            host_up_client._authenticate()
-        self.assertIn("Could not find expiration in JWT", str(context.exception))
 if __name__ == "__main__":
     unittest.main()
