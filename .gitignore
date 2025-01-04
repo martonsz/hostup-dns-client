@@ -1,3 +1,6 @@
+*.pyc
+.coverage
 .env
 .venv
-*.pyc
+app.log
+authentication.json

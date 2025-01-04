@@ -1,8 +1,10 @@
-import requests
-from requests import Request, PreparedRequest, Response, Session
+import jwt_store
+
 from app_config import AppConfig
 from model.authentication import Authentication
 from model.list_dns import List_DNS, Zone
+
+from requests import Request, Response, Session
 from typing import List
 
 
@@ -13,7 +15,7 @@ class ToManyRequestsException(Exception):
 
 
 class HostUpClient:
-    def __init__(self, config: AppConfig) -> None:
+    def __init__(self, config: AppConfig = AppConfig()) -> None:
         self.config = config
 
     def list_dns(self) -> List[str]:
@@ -21,11 +23,12 @@ class HostUpClient:
         return List_DNS.model_validate_json(response.text)
 
     def _get_jwt(self) -> Authentication:
-        # TODO get cached jwt if it has not expired
-        # authentication = self._get_cached_jwt()
-        return self._authenticate()
-        # TODO store new JWT somhwere
-        return jwt
+        authentication = jwt_store.load_jwt(self.config.authentication_file_path)
+        if authentication:
+            return authentication
+        authentication = self._authenticate()
+        jwt_store.save_jwt(authentication, self.config.authentication_file_path)
+        return authentication
 
     def _authenticate(self) -> Authentication:
         payload = {"username": self.config.username, "password": self.config.password}
@@ -56,7 +59,6 @@ class HostUpClient:
 
 
 if __name__ == "__main__":
-    config = AppConfig()
-    host_up_client = HostUpClient(config)
+    host_up_client = HostUpClient()
     list_dns = host_up_client.list_dns()
     print(list_dns)

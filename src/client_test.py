@@ -1,10 +1,10 @@
-import unittest
 import json
-import requests
-from unittest.mock import patch, Mock
-from app_config import AppConfig
-from model.authentication import Authentication, TokenException
+import unittest
+
 from client import HostUpClient, ToManyRequestsException
+from app_config import AppConfig
+from unittest.mock import patch, Mock
+from model.authentication import Authentication, TokenException
 
 
 class TestClient(unittest.TestCase):
@@ -42,7 +42,7 @@ class TestClient(unittest.TestCase):
         host_up_client = HostUpClient(self.config)
         with self.assertRaises(TokenException) as context:
             host_up_client._authenticate()
-        self.assertIn("Could not find expiration in JWT", str(context.exception))
+        self.assertIn("Could not find expiration in token", str(context.exception))
 
     @patch("requests.Session.send")
     def test_rate_limit(self, session_send_mock):

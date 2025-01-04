@@ -1,6 +1,9 @@
 import os
+import logging
+from pathlib import Path
 from configparser import ConfigParser
 
+logger = logging.getLogger(__name__)
 
 class AppConfigException(Exception):
     """Custom exception for configuration errors."""
@@ -10,23 +13,27 @@ class AppConfigException(Exception):
 
 class AppConfig:
     DEFAULT_API_ENDPOINT = "https://min.hostup.se/api"
-    DEFAULT_CONFIG_FILE_PATH = os.path.join(os.path.dirname(__file__), "config.ini")
+    DEFAULT_CONFIG_FILE_PATH = Path(os.path.join(os.path.dirname(__file__), "config.ini"))
+    DEFAULT_AUTHENTICATION_FILE_PATH = os.path.join(os.path.dirname(__file__), "authentication.json")
 
     CONFIG_FILE_PATH_ENV_NAME = "APP_CONFIG_FILE_PATH"
+    AUTHENTICATION_FILE_PATH_ENV_NAME = "AUTHENTICATION_FILE_PATH"
     USERNAME_ENV_NAME = "APP_USERNAME"
     PASSWORD_ENV_NAME = "APP_PASSWORD"
     API_ENDPOINT_ENV_NAME = "APP_API_ENDPOINT"
 
     def __init__(
-        self, username: str = None, password: str = None, api_endpoint: str = None
+        self, username: str = None, password: str = None, api_endpoint: str = None, authentication_file_path: str = None
     ) -> None:
         self._username = None
         self._password = None
         self._api_endpoint = None
+        self._authentication_file_path = None
         args_config = {
             "username": username,
             "password": password,
             "api_endpoint": api_endpoint,
+            "authentication_file_path": authentication_file_path
         }
         self._args_config = {
             key: value for key, value in args_config.items() if value is not None
@@ -34,16 +41,20 @@ class AppConfig:
         self.load_configuration()
 
     @property
-    def username(self):
+    def username(self) -> str:
         return self._username
 
     @property
-    def password(self):
+    def password(self) -> str:
         return self._password
 
     @property
-    def api_endpoint(self):
+    def api_endpoint(self) -> str:
         return self._api_endpoint
+
+    @property
+    def authentication_file_path(self) -> Path:
+        return self._authentication_file_path
 
     def _validate(self, config):
         if not config.get("username"):
@@ -63,12 +74,13 @@ class AppConfig:
                     f"Configuration file '{env_file_path}' does not exist."
                 )
             else:
-                file_path = env_file_path
+                file_path = Path(env_file_path)
 
         if not os.path.exists(file_path):
             return {}
 
         try:
+            logging.debug(f"Reading configuration from file: {file_path}")
             parser = ConfigParser()
             parser.read(file_path)
 
@@ -108,3 +120,6 @@ class AppConfig:
         self._api_endpoint = merged_config.get(
             "api_endpoint", AppConfig.DEFAULT_API_ENDPOINT
         )
+        self._authentication_file_path = Path(merged_config.get(
+            "authentication_file_path]", AppConfig.DEFAULT_AUTHENTICATION_FILE_PATH
+        ))
