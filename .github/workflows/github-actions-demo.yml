@@ -1,0 +1,61 @@
+name: Python CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Run unit tests
+      - name: Run unit tests
+        run: |
+          cd src
+          python -m unittest *_test.py
+
+      # Install PyInstaller and Nuitka
+      - name: Install PyInstaller and Nuitka
+        run: |
+          pip install pyinstaller nuitka
+
+      # Create executable with PyInstaller
+      - name: Build executable with PyInstaller
+        run: |
+          pyinstaller --onefile src/main.py
+        working-directory: src
+
+      # Create executable with Nuitka
+      - name: Build executable with Nuitka
+        run: |
+          python -m nuitka --standalone --onefile src/main.py
+        working-directory: src
+
+      # Time PyInstaller executable startup
+      - name: Time PyInstaller executable
+        run: |
+          time ./src/dist/main
+
+      # Time Nuitka executable startup
+      - name: Time Nuitka executable
+        run: |
+          time ./src/main.dist/main
