@@ -42,20 +42,18 @@ jobs:
       - name: Build executable with PyInstaller
         run: |
           pyinstaller --onefile src/main.py
-        working-directory: src
 
       # Create executable with Nuitka
       - name: Build executable with Nuitka
         run: |
           python -m nuitka --standalone --onefile src/main.py
-        working-directory: src
 
       # Time PyInstaller executable startup
       - name: Time PyInstaller executable
         run: |
-          time ./src/dist/main
+          time ./dist/main
 
       # Time Nuitka executable startup
       - name: Time Nuitka executable
         run: |
-          time ./src/main.dist/main
+          time ./main.dist/main
