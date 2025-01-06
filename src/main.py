@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import argparse
 from app_config import AppConfig
 from client import HostUpClient
 from model.dns import DnsRecordPayload
@@ -50,19 +51,57 @@ def setup_logger_from_config(config_file) -> None:
 
 def main():
     setup_logger_from_config(log_config_file_path)
-    client = HostUpClient(AppConfig())
 
-    #record = client.get_record_by_name("clienttest.marton.cloud")
-    #logging.info(f"record: {record}")
+    args = setup_argparse()
+    client = HostUpClient(AppConfig(args.username, args.password, args.api_endpoint))
 
-    #r = client.delete_record_by_name("clienttest.marton.cloud")
-    #logging.info(f"Deleted record: {r}")
+    if args.action == "present":
+        logger.info(
+            f"Adding DNS record for domain '{args.domain}' with value '{args.value}'"
+        )
+        response = client.add_record_by_name(
+            DnsRecordPayload(
+                name=args.domain, ttl=300, priority=10, type="TXT", content=args.value
+            ),
+            delete_existing=True,
+        )
+        logger.info(f"Response: {response}")
+    elif args.action == "cleanup":
+        logger.info(
+            f"Deleting DNS record for domain '{args.domain}'"
+        )
+        response = client.delete_record_by_name(args.domain)
+        logger.info(f"Response: {response}")
 
-    payload = DnsRecordPayload(
-        name="clienttest.marton.cloud", ttl=3600, priority=10, type="TXT", content="first"
+
+def setup_argparse() -> None:
+    parser = argparse.ArgumentParser(
+        description="Parse command-line arguments for DNS record management"
     )
-    r = client.add_record_by_name(payload)
-    print(r)
+    # Define the positional arguments
+    parser.add_argument(
+        "action",
+        choices=["present", "cleanup"],
+        help="The action to perform: 'present' or 'cleanup'",
+    )
+    parser.add_argument(
+        "domain",
+        help="The fully-qualified domain name (e.g., '_acme-challenge.my.example.org.')",
+    )
+    parser.add_argument(
+        "value",
+        help="The value for the DNS record (e.g., 'MsijOYZxqyjGnFGwhjrhfg-Xgbl5r68WPda0J9EgqqI')",
+    )
+
+    # Define the optional arguments
+    parser.add_argument("-u", "--username", help="Username for authentication")
+    parser.add_argument("-p", "--password", help="Password for authentication")
+    parser.add_argument("-a", "--api-endpoint", help="API endpoint URL")
+    parser.add_argument("-j", "--jwt-path", help="File path for storing JWT")
+    parser.add_argument("-c", "--config", help="Configuration file path")
+
+    # Parse the command-line arguments
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

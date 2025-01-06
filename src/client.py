@@ -106,16 +106,18 @@ class HostUpClient:
         logger.debug(f"Delete record response: {response.text}")
         return ApiResponse.model_validate_json(response.text)
 
-    def delete_record_by_name(self, name: str) -> None:
+    def delete_record_by_name(self, name: str) -> list[DnsRecordResponse]:
         logger.debug(f"Deleting record by name: {name}")
+        reponses = []
         while True:
             details, record = self._find_record(name)
             if record:
                 r = self.delete_record(details.service_id, record.domain_id, record.id)
+                reponses.append(r)
                 logger.debug(f"Deleted record response: {r}")
             else:
                 break
-        return None
+        return reponses
 
     def logout(self) -> None:
         authentication = jwt_store.load_jwt(self.config.authentication_file_path)
