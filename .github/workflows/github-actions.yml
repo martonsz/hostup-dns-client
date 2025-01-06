@@ -30,7 +30,7 @@ jobs:
       # Run unit tests
       - name: Run unit tests
         run: |
-          python -m unittest *_test.py
+          python -m unittest -v *_test.py
         working-directory: src
 
       # Create executable with PyInstaller
