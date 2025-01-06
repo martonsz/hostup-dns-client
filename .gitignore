@@ -4,3 +4,6 @@
 .venv
 app.log
 authentication.json
+build/
+dist/
+main.spec
