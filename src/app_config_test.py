@@ -1,5 +1,6 @@
 import os
 import unittest
+import test_util
 from unittest.mock import patch, mock_open
 from configparser import ConfigParser
 from app_config import AppConfig, AppConfigException
@@ -8,11 +9,7 @@ from app_config import AppConfig, AppConfigException
 class TestAppConfig(unittest.TestCase):
 
     def setUp(self):
-        # Clear env variables that "accidentally" is set using .env file
-        os.environ.pop(AppConfig.CONFIG_FILE_PATH_ENV_NAME, None)
-        os.environ.pop(AppConfig.API_ENDPOINT_ENV_NAME, None)
-        os.environ.pop(AppConfig.USERNAME_ENV_NAME, None)
-        os.environ.pop(AppConfig.PASSWORD_ENV_NAME, None)
+        test_util.clear_env_variables()
 
     @patch.dict(
         os.environ,

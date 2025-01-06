@@ -1,5 +1,6 @@
 import json
 import unittest
+import test_util
 
 from client import HostUpClient, ToManyRequestsException
 from app_config import AppConfig
@@ -7,13 +8,14 @@ from unittest.mock import patch, Mock
 from model.authentication import Authentication, TokenException
 
 
-class TestClient(unittest.TestCase):
+class TestClientAuth(unittest.TestCase):
 
     jwt_expires_year_5000 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk1NjE3NTg0MDAwfQ.Uv_CMsLoJLLv0l5dtHQ9k5kapg2BScOCXuJn3mH2jzY"
     epoch_year_5000 = 95617584000
     jwt_missing_exp = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
 
     def setUp(self):
+        test_util.clear_env_variables()
         self.config = AppConfig(username="username", password="password")
 
     @patch("requests.Session.send")

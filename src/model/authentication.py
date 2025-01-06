@@ -44,7 +44,7 @@ class Authentication(BaseModel):
         time_left = max(0, self.expiration - current_time)
     
         if time_left == 0:
-            return "Time has passed"
+            return "0 seconds"
     
         days = time_left // 86400
         hours = (time_left % 86400) // 3600
