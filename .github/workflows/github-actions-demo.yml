@@ -30,8 +30,8 @@ jobs:
       # Run unit tests
       - name: Run unit tests
         run: |
-          cd src
           python -m unittest *_test.py
+        working-directory: src
 
       # Install PyInstaller and Nuitka
       - name: Install PyInstaller and Nuitka
@@ -56,4 +56,4 @@ jobs:
       # Time Nuitka executable startup
       - name: Time Nuitka executable
         run: |
-          time ./main.dist/main --help
+          time ./main.bin --help
