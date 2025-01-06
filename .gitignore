@@ -6,4 +6,4 @@ app.log
 authentication.json
 build/
 dist/
-main.spec
+hostup-dns-client.spec

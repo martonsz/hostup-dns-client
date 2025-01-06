@@ -36,5 +36,5 @@ jobs:
       # Create executable with PyInstaller
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller --onefile src/main.py
-          time ./dist/main --help
+          pyinstaller --onefile --name hostup-dns-client src/main.py
+          time ./dist/hostup-dns-client --help
