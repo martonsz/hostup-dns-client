@@ -51,9 +51,9 @@ jobs:
       # Time PyInstaller executable startup
       - name: Time PyInstaller executable
         run: |
-          time ./dist/main
+          time ./dist/main --help
 
       # Time Nuitka executable startup
       - name: Time Nuitka executable
         run: |
-          time ./main.dist/main
+          time ./main.dist/main --help
