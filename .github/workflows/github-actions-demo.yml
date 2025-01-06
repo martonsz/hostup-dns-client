@@ -33,27 +33,8 @@ jobs:
           python -m unittest *_test.py
         working-directory: src
 
-      # Install PyInstaller and Nuitka
-      - name: Install PyInstaller and Nuitka
-        run: |
-          pip install pyinstaller nuitka
-
       # Create executable with PyInstaller
       - name: Build executable with PyInstaller
         run: |
           pyinstaller --onefile src/main.py
-
-      # Create executable with Nuitka
-      - name: Build executable with Nuitka
-        run: |
-          python -m nuitka --standalone --onefile src/main.py
-
-      # Time PyInstaller executable startup
-      - name: Time PyInstaller executable
-        run: |
           time ./dist/main --help
-
-      # Time Nuitka executable startup
-      - name: Time Nuitka executable
-        run: |
-          time ./main.bin --help
