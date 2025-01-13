@@ -3,9 +3,12 @@ import json
 import logging
 import os
 import argparse
+import pprint
 from app_config import AppConfig
 from client import HostUpClient
+from logging.handlers import RotatingFileHandler
 from model.dns import DnsRecordPayload
+from version import __version__
 
 logger = logging.getLogger(__name__)
 log_level = os.getenv("LOG_LEVEL", "INFO")
@@ -24,7 +27,9 @@ def setup_default_logger() -> logging.Logger:
     console_handler.setFormatter(formatter)
 
     # File handler
-    file_handler = logging.FileHandler("app.log", mode="a")
+    file_handler = RotatingFileHandler(
+        "app.log", maxBytes=10 * 1024 * 1024, backupCount=5
+    )
     file_handler.setFormatter(formatter)
 
     # Adding handlers to the root logger
@@ -55,6 +60,11 @@ def main():
     args = setup_argparse()
     client = HostUpClient(AppConfig(args.username, args.password, args.api_endpoint))
 
+    if args.zones:
+        zones = client.get_zones()
+        logger.info(pprint.pformat(zones.model_dump()))
+        return
+
     if args.action == "present":
         logger.info(
             f"Adding DNS record for domain '{args.domain}' with value '{args.value}'"
@@ -81,15 +91,18 @@ def setup_argparse() -> None:
     # Define the positional arguments
     parser.add_argument(
         "action",
+        nargs="?",
         choices=["present", "cleanup"],
         help="The action to perform: 'present' or 'cleanup'",
     )
     parser.add_argument(
         "domain",
+        nargs="?",
         help="The fully-qualified domain name (e.g., '_acme-challenge.my.example.org.')",
     )
     parser.add_argument(
         "value",
+        nargs="?",
         help="The value for the DNS record (e.g., 'MsijOYZxqyjGnFGwhjrhfg-Xgbl5r68WPda0J9EgqqI')",
     )
 
@@ -99,10 +112,16 @@ def setup_argparse() -> None:
     parser.add_argument("-a", "--api-endpoint", help="API endpoint URL")
     parser.add_argument("-j", "--jwt-path", help="File path for storing JWT")
     parser.add_argument("-c", "--config", help="Configuration file path")
+    parser.add_argument("-z", "--zones", action="store_true", help="List zones")
+    parser.add_argument('--version', action='version', version=f"hostup-dns-client {__version__}")
 
-    # Parse the command-line arguments
-    return parser.parse_args()
+    args = parser.parse_args()
 
+    if not args.zones:
+        if not args.action or not args.domain or not args.value:
+            parser.error("The 'action', 'domain', and 'value' arguments are required")
+
+    return args
 
 if __name__ == "__main__":
     main()
