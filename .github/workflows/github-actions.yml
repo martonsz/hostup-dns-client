@@ -41,7 +41,6 @@ jobs:
           time ./dist/hostup-dns-client-${version} --help
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: hostup-dns-client-${version}
           path: dist/hostup-dns-client-*
