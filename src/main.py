@@ -11,7 +11,8 @@ from model.dns import DnsRecordPayload
 from version import __version__
 
 logger = logging.getLogger(__name__)
-log_level = os.getenv("LOG_LEVEL", "INFO")
+log_level = os.getenv("HOSTUP_DNS_CLIENT_LOG_LEVEL", "INFO")
+log_file_path = os.getenv("HOSTUP_DNS_CLIENT_LOG_FILE_PATH", "hostup-dns-client.log")
 log_config_file_path = os.path.join(os.path.dirname(__file__), "logging_config.ini")
 
 
@@ -28,7 +29,7 @@ def setup_default_logger() -> logging.Logger:
 
     # File handler
     file_handler = RotatingFileHandler(
-        "app.log", maxBytes=10 * 1024 * 1024, backupCount=5
+        log_file_path, maxBytes=10 * 1024 * 1024, backupCount=5
     )
     file_handler.setFormatter(formatter)
 

@@ -16,11 +16,11 @@ class AppConfig:
     DEFAULT_CONFIG_FILE_PATH = Path(os.path.join(os.path.dirname(__file__), "config.ini"))
     DEFAULT_AUTHENTICATION_FILE_PATH = os.path.join(os.path.dirname(__file__), "authentication.json")
 
-    CONFIG_FILE_PATH_ENV_NAME = "APP_CONFIG_FILE_PATH"
+    CONFIG_FILE_PATH_ENV_NAME = "HOSTUP_DNS_CLIENT_CONFIG_FILE_PATH"
     AUTHENTICATION_FILE_PATH_ENV_NAME = "AUTHENTICATION_FILE_PATH"
-    USERNAME_ENV_NAME = "APP_USERNAME"
-    PASSWORD_ENV_NAME = "APP_PASSWORD"
-    API_ENDPOINT_ENV_NAME = "APP_API_ENDPOINT"
+    USERNAME_ENV_NAME = "HOSTUP_DNS_CLIENT_USERNAME"
+    PASSWORD_ENV_NAME = "HOSTUP_DNS_CLIENT_PASSWORD"
+    API_ENDPOINT_ENV_NAME = "HOSTUP_DNS_CLIENT_API_ENDPOINT"
 
     def __init__(
         self, username: str = None, password: str = None, api_endpoint: str = None, authentication_file_path: str = None

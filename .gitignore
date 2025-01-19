@@ -1,8 +1,8 @@
+*.log
 *.pyc
 .coverage
 .env
 .venv
-app.log
 authentication.json
 build/
 dist/
