@@ -5,7 +5,7 @@ A Python tool for updating DNS records via the Hostup.se API, specifically desig
 ## Build
 
 You can use docker compose to build this project.  
-I chose compose it works on both Windows and Mac.  
+I chose compose because it works on both Windows and Mac.  
 
 The following will produce a single file application in `dist/hostup-dns-client-${version}`
 
