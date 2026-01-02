@@ -1,0 +1,40 @@
+{
+  "success": true,
+  "timestamp": "2025-12-29T12:29:09.458Z",
+  "requestId": "mocked-request-id-123456",
+  "data": {
+    "zone": {
+      "id": "10000",
+      "domain": "marton.cloud",
+      "records": [
+        {
+          "id": 32857634,
+          "type": "A",
+          "name": "www.marton.cloud",
+          "value": "192.168.0.100",
+          "ttl": 3600,
+          "status": "active",
+          "created": "2025-12-29T12:29:09.458Z"
+        },
+        {
+          "id": 32857656,
+          "type": "A",
+          "name": "*.marton.cloud",
+          "value": "192.168.0.100",
+          "ttl": 3600,
+          "status": "active",
+          "created": "2025-12-29T12:29:09.458Z"
+        },
+        {
+          "id": 32857659,
+          "type": "A",
+          "name": "marton.cloud",
+          "value": "192.168.0.100",
+          "ttl": 14400,
+          "status": "active",
+          "created": "2025-12-29T12:29:09.458Z"
+        }
+      ]
+    }
+  }
+}
