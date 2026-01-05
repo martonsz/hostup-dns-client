@@ -3,10 +3,12 @@
     <words>
       <w>Graal</w>
       <w>Hostup</w>
+      <w>Traefik</w>
       <w>buildkit</w>
       <w>buildx</w>
       <w>marton</w>
       <w>martonsz</w>
+      <w>traefik</w>
     </words>
   </dictionary>
 </component>
