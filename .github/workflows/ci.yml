@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: CI
 
     steps:
       - name: Checkout
@@ -19,11 +20,14 @@ jobs:
         with:
           distribution: temurin
           java-version: "25"
-          cache: gradle
+
+      - name: Set up Gradle with caching
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_CACHE_KEY || '' }}
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
       - name: Run tests
         run: ./gradlew --no-daemon test
-
