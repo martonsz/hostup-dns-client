@@ -18,14 +18,19 @@ public final class DslJsonFactory {
         DslJson<Object> dslJson = new DslJson<>(Settings.withRuntime());
 
         // Explicitly register generated converters into this instance
-        new cloud.marton.hostup_dns_client.model._ZonesResponse_DslJsonConverter().configure(dslJson);
-        new cloud.marton.hostup_dns_client.model._ZonesResponse$Data_DslJsonConverter().configure(dslJson);
-        new cloud.marton.hostup_dns_client.model._ZonesResponse$Zone_DslJsonConverter().configure(dslJson);
-
-        new cloud.marton.hostup_dns_client.model._DnsRecordsResponse_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._DeleteDnsRecord404Response_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._DeleteDnsRecordResponse$Data_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._DeleteDnsRecordResponse_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DnsRecordsResponse$Data_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DnsRecordsResponse$Record_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DnsRecordsResponse$Zone_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._DnsRecordsResponse_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._SetRecordResponse$Data_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._SetRecordResponse$Record_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._SetRecordResponse_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._ZonesResponse$Data_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._ZonesResponse$Zone_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._ZonesResponse_DslJsonConverter().configure(dslJson);
 
         return dslJson;
     }

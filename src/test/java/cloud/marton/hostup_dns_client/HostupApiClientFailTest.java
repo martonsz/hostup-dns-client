@@ -32,7 +32,7 @@ class HostupApiClientFailTest {
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
 
-        stubListZonesFailDeserialization();
+        stubGetZonesFailDeserialization();
         stubGetDnsRecordsWithNull();
         stubGetDnsRecordsNot200();
 
@@ -48,8 +48,8 @@ class HostupApiClientFailTest {
     }
 
     @Test
-    void listZones() {
-        assertThrows(JsonMappingException.class, () -> client.listZones());
+    void getZones() {
+        assertThrows(JsonMappingException.class, () -> client.getZones());
     }
 
     @Test
@@ -64,7 +64,7 @@ class HostupApiClientFailTest {
         assertNotNull(httpErrorException.toString());
     }
 
-    private static void stubListZonesFailDeserialization() throws IOException {
+    private static void stubGetZonesFailDeserialization() throws IOException {
         String unknownBody = """
                 { "unknown_field": "unknown_value" }
                 """;

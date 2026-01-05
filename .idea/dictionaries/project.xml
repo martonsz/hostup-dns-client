@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>Graal</w>
+      <w>Hostup</w>
       <w>buildkit</w>
       <w>buildx</w>
       <w>marton</w>

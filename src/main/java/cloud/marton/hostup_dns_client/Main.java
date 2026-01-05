@@ -5,7 +5,6 @@ import cloud.marton.hostup_dns_client.exceptions.HttpErrorException;
 import cloud.marton.hostup_dns_client.exceptions.JsonMappingException;
 import cloud.marton.hostup_dns_client.exceptions.RateLimitException;
 import cloud.marton.hostup_dns_client.logging.LoggingConfigurator;
-import cloud.marton.hostup_dns_client.model.ZonesResponse;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -34,8 +33,25 @@ public class Main {
             }
             HostupApiClient client = new HostupApiClient(options.apiKey(), options.baseUri());
             if (options.listZones()) {
-                ZonesResponse zonesResponse = client.listZones();
-                LOGGER.info(() -> "\n" + zonesResponse.pretty());
+                var response = client.getZones();
+                LOGGER.info(() -> "\n" + response.pretty());
+            } else if (options.listRecords() != null) {
+                var response = client.getDnsRecords(options.listRecords());
+                LOGGER.info(() -> "\n" + response.pretty());
+            } else if (options.addRecord() != null) {
+                var record = options.addRecord();
+                var response = client.setDnsRecord(
+                        record.zoneId(),
+                        record.type(),
+                        record.domain(),
+                        record.value(),
+                        record.ttl());
+                LOGGER.info(() -> "\n" + response.pretty());
+            } else if (options.deleteRecord() != null) {
+                var response = client.deleteDnsRecord(options.deleteRecord().zoneId(), options.deleteRecord().recordId());
+                LOGGER.info(() -> "\n" + response.pretty());
+            } else {
+                throw new RuntimeException("Not implemented yet");
             }
         } catch (CliParserException e) {
             LOGGER.log(Level.SEVERE, e, () -> e.getMessage() + "\n\n" + CliParser.getUsage());
