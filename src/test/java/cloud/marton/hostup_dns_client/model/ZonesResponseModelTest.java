@@ -34,9 +34,9 @@ class ZonesResponseModelTest {
         assertEquals(2, response.data().zones().size());
 
         ZonesResponse.Zone first = response.data().zones().getFirst();
-        assertEquals("20", first.server_id());
-        assertEquals("1234", first.account_id());
-        assertEquals("10000", first.domain_id());
+        assertEquals(20, first.server_id());
+        assertEquals(1234, first.account_id());
+        assertEquals(10000, first.domain_id());
         assertEquals("marton.cloud", first.domain());
     }
 

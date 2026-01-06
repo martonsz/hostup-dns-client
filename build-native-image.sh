@@ -4,7 +4,11 @@ set -e
 
 docker_hub_username="martonsz"
 image_name="hostup-dns-client"
+if [[ $1 == "releaseVersion" ]]; then
+  sed -i 's/-SNAPSHOT//g' gradle.properties
+fi
 version=$(grep '^version=' < gradle.properties | cut -d'=' -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
 full_image_name="${docker_hub_username}/${image_name}:${version}"
 
 CLEAN_CACHE=false

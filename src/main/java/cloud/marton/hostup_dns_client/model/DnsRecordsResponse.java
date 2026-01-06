@@ -16,7 +16,7 @@ public record DnsRecordsResponse(
     }
 
     public record Zone(
-            @JsonAttribute(mandatory = true, nullable = false) String id,
+            @JsonAttribute(mandatory = true, nullable = false) int id,
             @JsonAttribute(mandatory = true, nullable = false) String domain,
             @JsonAttribute(mandatory = true, nullable = false) List<Record> records) {
     }

@@ -9,5 +9,6 @@ public record ErrorResponse(
         @JsonAttribute(mandatory = true, nullable = false) String message,
         @JsonAttribute(mandatory = true, nullable = false) String code,
         @JsonAttribute(mandatory = true, nullable = false) String timestamp,
-        @JsonAttribute(mandatory = true, nullable = false) String requestId) implements HostupApiResponse {
+        @JsonAttribute(mandatory = true, nullable = false) String requestId)
+        implements HostupApiResponse {
 }

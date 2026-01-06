@@ -83,6 +83,7 @@ It will create a native image binary in the `dist` folder.
 
 # TODO
 
-- Implement Lego positional arguments
 - Test native executable against a mock server
+- Refactor error handling.
 - Improve test coverage
+- Create release version on GitHub with the built binary attached

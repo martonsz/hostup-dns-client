@@ -16,9 +16,9 @@ public record ZonesResponse(
     }
 
     public record Zone(
-            @JsonAttribute(mandatory = true, nullable = false) String server_id,
-            @JsonAttribute(mandatory = true, nullable = false) String account_id,
-            @JsonAttribute(mandatory = true, nullable = false) String domain_id,
+            @JsonAttribute(mandatory = true, nullable = false) int server_id,
+            @JsonAttribute(mandatory = true, nullable = false) int account_id,
+            @JsonAttribute(mandatory = true, nullable = false) int domain_id,
             @JsonAttribute(mandatory = true, nullable = false) String domain) {
     }
 }

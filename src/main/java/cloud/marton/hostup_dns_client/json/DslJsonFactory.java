@@ -18,7 +18,6 @@ public final class DslJsonFactory {
         DslJson<Object> dslJson = new DslJson<>(Settings.withRuntime());
 
         // Explicitly register generated converters into this instance
-        new cloud.marton.hostup_dns_client.model._DeleteDnsRecord404Response_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DeleteDnsRecordResponse$Data_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DeleteDnsRecordResponse_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DnsRecordsResponse$Data_DslJsonConverter().configure(dslJson);

@@ -31,7 +31,7 @@ class DnsRecordsResponseModelTest {
 
         assertNotNull(response.data());
         assertNotNull(response.data().zone());
-        assertEquals("10000", response.data().zone().id());
+        assertEquals(10000, response.data().zone().id());
         assertEquals("marton.cloud", response.data().zone().domain());
 
         assertNotNull(response.data().zone().records());

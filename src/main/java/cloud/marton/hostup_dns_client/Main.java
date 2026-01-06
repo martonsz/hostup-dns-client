@@ -2,6 +2,7 @@ package cloud.marton.hostup_dns_client;
 
 import cloud.marton.hostup_dns_client.exceptions.CliParserException;
 import cloud.marton.hostup_dns_client.exceptions.JsonMappingException;
+import cloud.marton.hostup_dns_client.exceptions.LegoArgumentResult;
 import cloud.marton.hostup_dns_client.exceptions.RateLimitException;
 import cloud.marton.hostup_dns_client.logging.LoggingConfigurator;
 import cloud.marton.hostup_dns_client.model.ApiResponse;
@@ -41,18 +42,25 @@ public class Main {
                         record.domain(),
                         record.value(),
                         record.ttl());
-                printResponse(apiResponse);
+                printApiResponse(apiResponse);
             } else if (options.deleteDomain() != null) {
                 throw new RuntimeException("Not implemented yet");
             } else if (options.deleteRecord() != null) {
                 ApiResponse apiResponse = client.deleteDnsRecord(options.deleteRecord().zoneId(), options.deleteRecord().recordId());
-                printResponse(apiResponse);
+                printApiResponse(apiResponse);
             } else if (options.listZones()) {
-                printResponse(client.getZones());
+                printApiResponse(client.getZones());
             } else if (options.listRecords() != null) {
-                printResponse(client.getDnsRecords(options.listRecords()));
+                printApiResponse(client.getDnsRecords(options.listRecords()));
             } else if (options.legoArgs() != null) {
-                throw new RuntimeException("Not implemented yet");
+                LegoArgumentHandler legoArgumentHandler = new LegoArgumentHandler(client);
+                LegoArgumentResult result = legoArgumentHandler.handleLegoArgs(options.legoArgs());
+                if (result.isSuccess()) {
+                    System.out.println(result.getMessage() + "\n" + result.getApiResponse().body());
+                } else {
+                    System.err.println("ERROR: " + result.getMessage() + "\n" + result.getApiResponse().body());
+                    System.exit(1);
+                }
             } else {
                 throw new CliParserException("I forgot to implement this option\nArgs:\n"
                         + Arrays.toString(args) + "\n"
@@ -69,7 +77,7 @@ public class Main {
         }
     }
 
-    private static void printResponse(ApiResponse apiResponse) {
+    private static void printApiResponse(ApiResponse apiResponse) {
         if (apiResponse.success()) {
             System.out.println(apiResponse.body());
         } else {
