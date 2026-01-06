@@ -14,14 +14,12 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HostupApiClientFailTest {
 
-    private static final Path RESPONSES_DIR = Path.of("src", "test", "resources", "hostupApiResponses");
     private static WireMockServer wireMockServer;
     private static HostupApiClient client;
 

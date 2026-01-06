@@ -30,22 +30,4 @@ public record DnsRecordsResponse(
             @JsonAttribute(mandatory = true, nullable = false) String status,
             @JsonAttribute(mandatory = true, nullable = false) String created) {
     }
-
-    public String pretty() {
-        return "DNS Records Response:\n" +
-                "Success: " + success + "\n" +
-                "Request ID: " + requestId + "\n" +
-                "Zone ID: " + data.zone().id() + "\n" +
-                "Domain: " + data.zone().domain() + "\n" +
-                "Records:\n" +
-                data.zone().records().stream()
-                        .map(record -> "  - ID: " + record.id() +
-                                ", Type: " + record.type() +
-                                ", Name: " + record.name() +
-                                ", Value: " + record.value() +
-                                ", TTL: " + record.ttl() +
-                                ", Status: " + record.status() +
-                                ", Created: " + record.created())
-                        .reduce("", (a, b) -> a + b + "\n");
-    }
 }

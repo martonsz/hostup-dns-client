@@ -9,16 +9,7 @@ public record DeleteDnsRecordResponse(
         @JsonAttribute(mandatory = true, nullable = false) String requestId,
         @JsonAttribute(mandatory = true, nullable = false) Data data) implements HostupApiResponse {
 
-    public String pretty() {
-        return "DeleteDnsRecordResponse{" +
-                "success=" + success +
-                ", requestId='" + requestId + '\'' +
-                ", message='" + data.message + '\'' +
-                '}';
-    }
-
     public record Data(
             @JsonAttribute(mandatory = true, nullable = false) String message) {
     }
-
 }
