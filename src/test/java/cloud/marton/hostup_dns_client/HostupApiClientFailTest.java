@@ -14,10 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +26,7 @@ class HostupApiClientFailTest {
     private static HostupApiClient client;
 
     @BeforeAll
-    static void setup() throws IOException, URISyntaxException {
+    static void setup() throws URISyntaxException {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
@@ -133,10 +130,5 @@ class HostupApiClientFailTest {
                         .withStatus(400)
                         .withHeader("Content-Type", "application/json")
                         .withBody(nullBody)));
-    }
-
-    private static String readFixture(String filename) throws IOException {
-        Path file = RESPONSES_DIR.resolve(Objects.requireNonNull(filename, "filename"));
-        return Files.readString(file, StandardCharsets.UTF_8);
     }
 }

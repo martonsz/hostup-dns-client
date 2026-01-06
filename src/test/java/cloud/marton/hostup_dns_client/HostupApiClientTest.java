@@ -33,7 +33,7 @@ class HostupApiClientTest {
     private static HostupApiClient client;
 
     @BeforeAll
-    static void setup() throws IOException, URISyntaxException {
+    static void setup() throws URISyntaxException {
         cloud.marton.hostup_dns_client.logging.LoggingConfigurator.configure();
 
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
@@ -175,7 +175,7 @@ class HostupApiClientTest {
                         .withBody(body)));
     }
 
-    private static void stubDeleteDnsRecord() throws IOException {
+    private static void stubDeleteDnsRecord() {
         String body = """
                 {
                   "success": true,
