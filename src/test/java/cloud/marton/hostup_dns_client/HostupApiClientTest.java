@@ -1,6 +1,5 @@
 package cloud.marton.hostup_dns_client;
 
-import cloud.marton.hostup_dns_client.exceptions.HttpErrorException;
 import cloud.marton.hostup_dns_client.exceptions.JsonMappingException;
 import cloud.marton.hostup_dns_client.exceptions.RateLimitException;
 import cloud.marton.hostup_dns_client.model.DeleteDnsRecordResponse;
@@ -41,12 +40,6 @@ class HostupApiClientTest {
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
 
-        stubGetZones();
-        stubGetDnsRecords();
-        stubGetDnsRecordsRateLimitReached();
-        stubGetDnsRecordsRateLimitRetry();
-        stubSetDnsRecord();
-        stubDeleteDnsRecord();
 
         URI baseUri = new URI(wireMockServer.baseUrl() + "/");
         client = new HostupApiClient("test-api-key", baseUri, 2, 10L);
@@ -61,40 +54,52 @@ class HostupApiClientTest {
     }
 
     @Test
-    void getZones() throws RateLimitException, JsonMappingException, IOException, InterruptedException, HttpErrorException {
-        ZonesResponse zones = client.getZones();
+    void getZones() throws RateLimitException, JsonMappingException, IOException, InterruptedException {
+        stubGetZones();
+
+        ZonesResponse zones = (ZonesResponse) client.getZones().parsedResponse();
         assertEquals("marton.cloud", zones.data().zones().getFirst().domain(), "First domain should match fixture");
         assertEquals("mock-domain.com", zones.data().zones().get(1).domain(), "First domain should match fixture");
     }
 
     @Test
-    void getDnsRecords() throws RateLimitException, JsonMappingException, IOException, InterruptedException, HttpErrorException {
-        DnsRecordsResponse dnsRecords = client.getDnsRecords(10000);
+    void getDnsRecords() throws RateLimitException, JsonMappingException, IOException, InterruptedException {
+        stubGetDnsRecords();
+
+        DnsRecordsResponse dnsRecords = (DnsRecordsResponse) client.getDnsRecords(10000).parsedResponse();
         assertEquals("www.marton.cloud", dnsRecords.data().zone().records().getFirst().name(), "First record name must match fixture");
         assertEquals("*.marton.cloud", dnsRecords.data().zone().records().get(1).name(), "First record name must match fixture");
         assertEquals("marton.cloud", dnsRecords.data().zone().records().get(2).name(), "First record name must match fixture");
     }
 
     @Test
-    void setDnsRecord() throws RateLimitException, JsonMappingException, IOException, InterruptedException, HttpErrorException {
-        SetRecordResponse answer = client.setDnsRecord(10000, "foo.marton.cloud", "test-value");
+    void setDnsRecord() throws RateLimitException, JsonMappingException, IOException, InterruptedException {
+        stubSetDnsRecord();
+
+        SetRecordResponse answer = (SetRecordResponse) client.setDnsRecord(10000, "foo.marton.cloud", "test-value").parsedResponse();
         assertEquals("foo.marton.cloud", answer.data().record().name(), "Record name must match fixture");
         assertEquals("\"test-value\"", answer.data().record().value(), "Record value must match fixture");
     }
 
     @Test
-    void deleteDnsRecord() throws RateLimitException, JsonMappingException, IOException, InterruptedException, HttpErrorException {
-        DeleteDnsRecordResponse answer = client.deleteDnsRecord(10000, 20000);
+    void deleteDnsRecord() throws RateLimitException, JsonMappingException, IOException, InterruptedException {
+        stubDeleteDnsRecord();
+
+        DeleteDnsRecordResponse answer = (DeleteDnsRecordResponse) client.deleteDnsRecord(10000, 20000).parsedResponse();
         assertEquals("DNS record deleted successfully", answer.data().message(), "Deleted record ID must match fixture");
     }
 
     @Test
     void getDnsRecordsRateLimitReached() {
+        stubGetDnsRecordsRateLimitReached();
+
         assertThrows(RateLimitException.class, () -> client.getDnsRecords(10001));
     }
 
     @Test
-    void getDnsRecordsRateLimitRetry() throws RateLimitException, JsonMappingException, IOException, InterruptedException, HttpErrorException {
+    void getDnsRecordsRateLimitRetry() throws RateLimitException, JsonMappingException, IOException, InterruptedException {
+        stubGetDnsRecordsRateLimitRetry();
+
         client.getDnsRecords(10002);
     }
 
@@ -116,7 +121,7 @@ class HostupApiClientTest {
                         .withBody(body)));
     }
 
-    private static void stubGetDnsRecordsRateLimitReached() throws IOException {
+    private static void stubGetDnsRecordsRateLimitReached() {
         wireMockServer.stubFor(get(urlPathEqualTo("/dns/zones/10001/records"))
                 .willReturn(aResponse()
                         .withStatus(429)));
@@ -145,7 +150,7 @@ class HostupApiClientTest {
                         .withBody(body)));
     }
 
-    private static void stubSetDnsRecord() throws IOException {
+    private static void stubSetDnsRecord() {
         String body = """
                 {
                   "success": true,

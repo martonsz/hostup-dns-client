@@ -9,7 +9,7 @@ import java.util.List;
 public record ZonesResponse(
         @JsonAttribute(mandatory = true, nullable = false) boolean success,
         @JsonAttribute(mandatory = true, nullable = false) String requestId,
-        @JsonAttribute(mandatory = true, nullable = false) Data data) {
+        @JsonAttribute(mandatory = true, nullable = false) Data data) implements HostupApiResponse {
 
     public record Data(
             @JsonAttribute(mandatory = true, nullable = false) List<Zone> zones) {

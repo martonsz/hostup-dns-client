@@ -25,6 +25,7 @@ public final class DslJsonFactory {
         new cloud.marton.hostup_dns_client.model._DnsRecordsResponse$Record_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DnsRecordsResponse$Zone_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._DnsRecordsResponse_DslJsonConverter().configure(dslJson);
+        new cloud.marton.hostup_dns_client.model._ErrorResponse_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._SetRecordResponse$Data_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._SetRecordResponse$Record_DslJsonConverter().configure(dslJson);
         new cloud.marton.hostup_dns_client.model._SetRecordResponse_DslJsonConverter().configure(dslJson);

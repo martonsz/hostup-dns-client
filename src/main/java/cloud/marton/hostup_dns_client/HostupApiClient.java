@@ -1,12 +1,8 @@
 package cloud.marton.hostup_dns_client;
 
-import cloud.marton.hostup_dns_client.exceptions.HttpErrorException;
 import cloud.marton.hostup_dns_client.exceptions.JsonMappingException;
 import cloud.marton.hostup_dns_client.exceptions.RateLimitException;
-import cloud.marton.hostup_dns_client.model.DeleteDnsRecordResponse;
-import cloud.marton.hostup_dns_client.model.DnsRecordsResponse;
-import cloud.marton.hostup_dns_client.model.SetRecordResponse;
-import cloud.marton.hostup_dns_client.model.ZonesResponse;
+import cloud.marton.hostup_dns_client.model.*;
 import com.dslplatform.json.DslJson;
 
 import java.io.IOException;
@@ -53,9 +49,9 @@ public class HostupApiClient {
      * Retrieve a list of all DNS zones associated with a specific customer account. This is useful for getting an overview of your domains' DNS settings and for managing them.
      * <a href="https://developer.hostup.se/#tag/domain-services/GET/api/dns/zones">API Documentation</a>
      *
-     * @return {@link ZonesResponse}
+     * @return {@link ApiResponse} with {@link ZonesResponse}
      */
-    public ZonesResponse getZones() throws IOException, InterruptedException, HttpErrorException, RateLimitException, JsonMappingException {
+    public ApiResponse getZones() throws IOException, InterruptedException, RateLimitException, JsonMappingException {
         HttpRequest request = newRequestBuilder("dns/zones")
                 .GET()
                 .build();
@@ -66,9 +62,9 @@ public class HostupApiClient {
      * Display all DNS records (such as A, CNAME, MX, NS) associated with a specific domain zone. Use this when you need to view, troubleshoot, or manage DNS settings for your domain. -
      * <a href="https://developer.hostup.se/#tag/domain-services/GET/api/dns/zones/{zoneId}/records">API Documentation</a>
      *
-     * @return {@link DnsRecordsResponse}
+     * @return {@link ApiResponse} with {@link DnsRecordsResponse}
      */
-    public DnsRecordsResponse getDnsRecords(int zoneId) throws IOException, InterruptedException, HttpErrorException, RateLimitException, JsonMappingException {
+    public ApiResponse getDnsRecords(int zoneId) throws IOException, InterruptedException, RateLimitException, JsonMappingException {
         HttpRequest request = newRequestBuilder("dns/zones/%d/records".formatted(zoneId))
                 .GET()
                 .build();
@@ -79,9 +75,9 @@ public class HostupApiClient {
      * Remove a specific DNS record, such as an A, CNAME, or MX record, associated with your domain. This is useful for cleaning up or correcting your domain's DNS settings.
      * <a href="https://developer.hostup.se/#tag/domain-services/DELETE/api/dns/zones/{zoneId}/records/{recordId}">API Documentation</a>
      *
-     * @return {@link DeleteDnsRecordResponse}
+     * @return {@link ApiResponse} with {@link DeleteDnsRecordResponse}
      */
-    public DeleteDnsRecordResponse deleteDnsRecord(int zoneId, int recordId) throws IOException, InterruptedException, HttpErrorException, RateLimitException, JsonMappingException {
+    public ApiResponse deleteDnsRecord(int zoneId, int recordId) throws IOException, InterruptedException, RateLimitException, JsonMappingException {
         HttpRequest request = newRequestBuilder("dns/zones/%d/records/%d".formatted(zoneId, recordId))
                 .DELETE()
                 .build();
@@ -91,9 +87,9 @@ public class HostupApiClient {
     /**
      * Calling {@link #setDnsRecord(int, String, String, String, int)  } with type="TXT" and ttl=300
      *
-     * @return {@link SetRecordResponse}
+     * @return {@link ApiResponse} with {@link SetRecordResponse}
      */
-    public SetRecordResponse setDnsRecord(int zoneId, String name, String value) throws IOException, InterruptedException, HttpErrorException, RateLimitException, JsonMappingException {
+    public ApiResponse setDnsRecord(int zoneId, String name, String value) throws IOException, InterruptedException, RateLimitException, JsonMappingException {
         return setDnsRecord(zoneId, "TXT", name, value, 300);
     }
 
@@ -101,9 +97,9 @@ public class HostupApiClient {
      * Add, change, or delete DNS records (such as A, CNAME, MX, TXT) for your domain. This is necessary when configuring services like email, subdomains, or pointing your domain to another server.
      * <a href="https://developer.hostup.se/#tag/domain-services/POST/api/dns/zones/{zoneId}/records">API Documentation</a>
      *
-     * @return {@link ZonesResponse}
+     * @return {@link ApiResponse} with {@link ZonesResponse}
      */
-    public SetRecordResponse setDnsRecord(int zoneId, String type, String name, String value, int ttl) throws IOException, InterruptedException, HttpErrorException, RateLimitException, JsonMappingException {
+    public ApiResponse setDnsRecord(int zoneId, String type, String name, String value, int ttl) throws IOException, InterruptedException, RateLimitException, JsonMappingException {
         String body = """
                 {
                   "type": "%s",
@@ -119,11 +115,11 @@ public class HostupApiClient {
         return send(request, SetRecordResponse.class);
     }
 
-    private <T> T send(HttpRequest request, Class<T> responseType) throws RateLimitException, JsonMappingException, IOException, InterruptedException, HttpErrorException {
+    private <T extends HostupApiResponse> ApiResponse send(HttpRequest request, Class<T> responseType) throws RateLimitException, JsonMappingException, IOException, InterruptedException {
         return send(request, responseType, 0);
     }
 
-    private <T> T send(HttpRequest request, Class<T> responseType, int retryCount) throws IOException, InterruptedException, RateLimitException, HttpErrorException, JsonMappingException {
+    private <T extends HostupApiResponse> ApiResponse send(HttpRequest request, Class<T> responseType, int retryCount) throws IOException, InterruptedException, RateLimitException, JsonMappingException {
         Objects.requireNonNull(request, "request");
         Objects.requireNonNull(responseType, "responseType");
 
@@ -144,12 +140,19 @@ public class HostupApiClient {
             return send(request, responseType, retryCount + 1);
         }
         if (httpStatusCode != 200) {
-            throw new HttpErrorException(response.statusCode(), "HttpStatusCode is not 200", bodyAsString);
+            byte[] bodyBytes = bodyAsString.getBytes();
+            try {
+                ErrorResponse deserialized = dslJson.deserialize(ErrorResponse.class, bodyBytes, bodyBytes.length);
+                return new ApiResponse(false, response.statusCode(), bodyAsString, deserialized);
+            } catch (IOException e) {
+                throw new JsonMappingException(httpStatusCode, "Failed to deserialize JSON as " + responseType.getName(), bodyAsString, e);
+            }
         }
         byte[] bodyBytes = bodyAsString.getBytes();
         try {
-            return dslJson.deserialize(responseType, bodyBytes, bodyBytes.length);
-        } catch (Exception e) {
+            T deserialized = dslJson.deserialize(responseType, bodyBytes, bodyBytes.length);
+            return new ApiResponse(true, response.statusCode(), bodyAsString, deserialized);
+        } catch (IOException e) {
             throw new JsonMappingException(httpStatusCode, "Failed to deserialize JSON as " + responseType.getName(), bodyAsString, e);
         }
     }

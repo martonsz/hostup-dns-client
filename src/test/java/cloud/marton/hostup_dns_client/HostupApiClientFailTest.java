@@ -1,7 +1,9 @@
 package cloud.marton.hostup_dns_client;
 
-import cloud.marton.hostup_dns_client.exceptions.HttpErrorException;
 import cloud.marton.hostup_dns_client.exceptions.JsonMappingException;
+import cloud.marton.hostup_dns_client.exceptions.RateLimitException;
+import cloud.marton.hostup_dns_client.model.ApiResponse;
+import cloud.marton.hostup_dns_client.model.ErrorResponse;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -31,11 +33,6 @@ class HostupApiClientFailTest {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
-
-        stubGetZonesFailDeserialization();
-        stubGetDnsRecordsWithNull();
-        stubGetDnsRecordsNot200();
-
         URI baseUri = new URI(wireMockServer.baseUrl() + "/");
         client = new HostupApiClient("test-api-key", baseUri);
     }
@@ -49,22 +46,38 @@ class HostupApiClientFailTest {
 
     @Test
     void getZones() {
+        stubGetZonesFailDeserialization();
+
         assertThrows(JsonMappingException.class, () -> client.getZones());
     }
 
     @Test
     void getDnsRecordsWithNull() {
+        stubGetDnsRecordsWithNull();
+
         assertThrows(JsonMappingException.class, () -> client.getDnsRecords(1000));
     }
 
     @Test
-    void getDnsRecordsNot200() {
-        HttpErrorException httpErrorException = assertThrows(HttpErrorException.class, () -> client.getDnsRecords(1001));
+    void getDnsRecordsNot404() throws RateLimitException, JsonMappingException, IOException, InterruptedException {
+        stubGetDnsRecords404();
+
+        ApiResponse response = client.getDnsRecords(1001);
+        assertEquals(404, response.httpStatus());
+        assertEquals("Not Found", ((ErrorResponse) response.parsedResponse()).error());
+        assertEquals("NOT_FOUND", ((ErrorResponse) response.parsedResponse()).code());
+    }
+
+    @Test
+    void getDnsRecordsUnknownJson() {
+        stubGetDnsRecordsUnknownJson();
+
+        JsonMappingException httpErrorException = assertThrows(JsonMappingException.class, () -> client.getDnsRecords(1002));
         assertEquals(400, httpErrorException.getHttpStatusCode());
         assertNotNull(httpErrorException.toString());
     }
 
-    private static void stubGetZonesFailDeserialization() throws IOException {
+    private static void stubGetZonesFailDeserialization() {
         String unknownBody = """
                 { "unknown_field": "unknown_value" }
                 """;
@@ -75,7 +88,7 @@ class HostupApiClientFailTest {
                         .withBody(unknownBody)));
     }
 
-    private static void stubGetDnsRecordsWithNull() throws IOException {
+    private static void stubGetDnsRecordsWithNull() {
         String nullBody = """
                 {
                   "success": true,
@@ -91,13 +104,31 @@ class HostupApiClientFailTest {
                         .withBody(nullBody)));
     }
 
-    private static void stubGetDnsRecordsNot200() throws IOException {
+    private static void stubGetDnsRecords404() {
         String nullBody = """
                 {
-                  "success": false
+                  "error": "Not Found",
+                  "message": "dns.zone_not_found not found",
+                  "code": "NOT_FOUND",
+                  "timestamp": "2026-01-04T09:09:03.358Z",
+                  "requestId": "4a3236f3-7389-4806-9790-13503912ca8c"
                 }
                 """;
         wireMockServer.stubFor(get(urlPathEqualTo("/dns/zones/1001/records"))
+                .willReturn(aResponse()
+                        .withStatus(404)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(nullBody)));
+    }
+
+
+    private static void stubGetDnsRecordsUnknownJson() {
+        String nullBody = """
+                {
+                  "foo": "bar"
+                }
+                """;
+        wireMockServer.stubFor(get(urlPathEqualTo("/dns/zones/1002/records"))
                 .willReturn(aResponse()
                         .withStatus(400)
                         .withHeader("Content-Type", "application/json")

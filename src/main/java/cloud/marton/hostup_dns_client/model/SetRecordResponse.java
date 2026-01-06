@@ -7,7 +7,7 @@ import com.dslplatform.json.JsonAttribute;
 public record SetRecordResponse(
         @JsonAttribute(mandatory = true, nullable = false) boolean success,
         @JsonAttribute(mandatory = true, nullable = false) String requestId,
-        @JsonAttribute(mandatory = true, nullable = false) Data data) {
+        @JsonAttribute(mandatory = true, nullable = false) Data data) implements HostupApiResponse {
 
     public String pretty() {
         return """

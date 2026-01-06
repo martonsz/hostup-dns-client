@@ -83,7 +83,6 @@ It will create a native image binary in the `dist` folder.
 
 # TODO
 
-- Handle error responses from the Hostup.se API
 - Implement Lego positional arguments
 - Test native executable against a mock server
 - Improve test coverage

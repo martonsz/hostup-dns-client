@@ -1,6 +1,6 @@
 package cloud.marton.hostup_dns_client.exceptions;
 
-public sealed class ApiException extends Exception permits JsonMappingException, RateLimitException, HttpErrorException {
+public sealed class ApiException extends Exception permits JsonMappingException, RateLimitException {
     private final int httpStatusCode;
     private final String bodyAsString;
 
