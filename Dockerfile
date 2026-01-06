@@ -4,7 +4,7 @@ WORKDIR /build
 COPY . ./
 RUN --mount=type=cache,target=/root/.gradle,id=hostup-dns-client-gradle-cache \
     --mount=type=cache,target=/root/.m2,id=hostup-dns-client-maven-cache \
-    ls -alR . ; ./gradlew jar
+    ls -alR . ; ./gradlew --no-daemon jar
 
 # --- Native image build stage
 FROM container-registry.oracle.com/graalvm/native-image:25-muslib AS nativebuild
