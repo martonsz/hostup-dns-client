@@ -38,3 +38,15 @@ jobs:
         with:
           name: reports
           path: build/reports
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build native image
+        run: ./build-native-image.sh
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: executable
+          path: dist
